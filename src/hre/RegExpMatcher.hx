@@ -14,7 +14,9 @@ import hre.ast.Disjunction;
 import hre.ast.Pattern;
 import hre.ast.Quantifier;
 import hre.ast.Term in TermNode;
-import tink.core.Error;
+//import tink.core.Error;
+
+import hre.Types;
 
 enum MatcherResult {
   Failure;

@@ -14,8 +14,10 @@ import hre.ast.Quantifier;
 import hre.ast.Term in TermNode;
 import hre.tokens.Symbol;
 import hre.RegExpParser;
-import tink.core.Error;
-import tink.core.Pair;
+
+//import tink.core.Error;
+//import tink.core.Pair;
+import hre.Types;
 
 class RegExpSyntaxError extends Error {
   public function new(message:String, index:Int, source:String) {

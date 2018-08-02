@@ -1,9 +1,15 @@
 package hre;
 
-import hre.RegExpParser.RegExpSyntaxError;
-import hre.RegExpMatcher.PatternMatcher;
-import hre.RegExpMatcher.MatcherResult;
-import hre.RegExpMatcher.MatcherState;
+import haxe.ds.Option;
+
+//import hre.RegExpParser.RegExpSyntaxError;
+//import hre.RegExpMatcher.PatternMatcher;
+//import hre.RegExpMatcher.MatcherResult;
+//import hre.RegExpMatcher.MatcherState;
+//import hre.ast.Pattern;
+
+import hre.RegExpParser;
+import hre.RegExpMatcher;
 import hre.ast.Pattern;
 
 /**
@@ -55,12 +61,13 @@ class RegExp {
   public function exec(input:String):Match {
     var matcher:PatternMatcher = RegExpMatcher.evaluatePattern(this.pattern, this.flags);
     var currentIndex:Int = this.flags.global || this.flags.sticky ? this.lastIndex : 0;
-    var successfulMatch:MatcherState;
+    var successfulMatch:Option<MatcherState> = None;
     while (true) {
       if (currentIndex > input.length) {
         this.lastIndex = 0;
         return null;
       }
+
       switch(matcher(input, currentIndex)) {
         case MatcherResult.Failure: {
           if (this.flags.sticky) {
@@ -70,12 +77,25 @@ class RegExp {
           currentIndex++;
           continue;
         }
+
         case MatcherResult.Success(state): {
-          successfulMatch = state;
+          successfulMatch = Some(state);
           break;
         }
       }
     }
+    
+    if (successfulMatch.match(None)) {
+        return null;
+    }
+
+    /* redefine variable, unwrapping it */
+    var successfulMatch:MatcherState = (switch successfulMatch {
+        case Some(state): state;
+        case _: null;
+    });
+    // now we can use [successfulMatch], as it has been defined and the function will return before we get this far if no match is found
+
     if (this.flags.global || this.flags.sticky) {
       this.lastIndex = successfulMatch.index;
     }
@@ -84,6 +104,7 @@ class RegExp {
     for (captured in successfulMatch.captures) {
       groups.push(captured);
     }
+
     return new Match(input, currentIndex, groups);
   }
 
